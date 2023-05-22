@@ -1,7 +1,5 @@
 package br.com.roanistore.modelo;
 
-import static java.util.Objects.nonNull;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -10,6 +8,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -28,9 +27,9 @@ public class Pedido
 	private LocalDate data = LocalDate.now();
 	
 	@Column(name = "valor_total")
-	private BigDecimal valorTotal;
+	private BigDecimal valorTotal = BigDecimal.ZERO;
 	
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	private Cliente cliente;
 	
 	@OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
@@ -49,12 +48,7 @@ public class Pedido
 	{
 		item.setPedido(this);
 		this.itensPedido.add(item);
-	}
-	
-	public void calcularValorTotal()
-	{
-		this.itensPedido.forEach(i -> this.valorTotal = (nonNull(this.valorTotal) ? this.valorTotal : BigDecimal.ZERO)
-				.add(i.getPrecoUnitario().multiply(new BigDecimal(i.getQuantidade()))));
+		this.valorTotal = this.valorTotal.add(item.getValor());
 	}
 
 	public Long getId()

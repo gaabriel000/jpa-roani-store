@@ -3,10 +3,16 @@ package br.com.roanistore.dao;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +30,7 @@ public class ProdutoDAO extends GenericoDAO
 	
 	public List<Produto> buscarTodosLimitado(Integer limite)
 	{
-		if(nonNull(limite))
+		if (nonNull(limite))
 		{
 			LOGGER.info("Buscando produtos. Limite de busca: {}", limite);
 			String query = "SELECT c FROM Produto c";
@@ -37,19 +43,27 @@ public class ProdutoDAO extends GenericoDAO
 		return new ArrayList<>();
 	}
 	
-	public List<Produto> buscarPorNome(String nome)
+	public List<Produto> buscarComFiltro(
+			String nome, 
+			BigDecimal preco,
+			LocalDate data)
 	{
-		if(isNotBlank(nome))
-		{
-			LOGGER.info("Buscando produto pelo nome: {}", nome);
-			String query = "SELECT p FROM Produto p WHERE p.nome = :nome";
-			return em.createQuery(query, Produto.class)
-					.setParameter("nome", nome)
-					.getResultList();
-		}
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<Produto> query = builder.createQuery(Produto.class);
+		Root<Produto> from = query.from(Produto.class);
+		Predicate filtros = builder.and();
 		
-		LOGGER.warn("Nome está nulo ou em branco");
-		return new ArrayList<>();
+		if (isNotBlank(nome))
+			builder.and(filtros, builder.equal(from.get("nome"), nome));
+		
+		if (nonNull(preco))
+			builder.and(filtros, builder.equal(from.get("preco"), preco));
+			
+		if (nonNull(data))
+			builder.and(filtros, builder.equal(from.get("dataCadastro"), data));
+		
+		query.where(filtros);
+		return em.createQuery(query).getResultList();
 	}
 	
 	public List<Produto> buscarPorCategoria(String categoria)

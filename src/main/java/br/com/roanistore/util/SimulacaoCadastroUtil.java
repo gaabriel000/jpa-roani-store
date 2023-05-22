@@ -58,7 +58,7 @@ public class SimulacaoCadastroUtil
 		LOGGER.info("Produto com ID {}: {}", idBusca, produtoBuscaID.getNome());
 		
 		String nomeBusca = produtosBuscados.get(0).getNome();
-		Produto produtoBuscaNome = produtoDAO.buscarPorNome(nomeBusca).get(0);
+		Produto produtoBuscaNome = produtoDAO.buscarComFiltro(nomeBusca, null, null).get(0);
 		LOGGER.info("ID do Produto com nome {}: {}", nomeBusca, produtoBuscaNome.getId());
 	}
 
@@ -88,7 +88,7 @@ public class SimulacaoCadastroUtil
 		LOGGER.info("Categoria com ID {}: {}", idBusca, categoriaBuscaID.getNome());
 		
 		String nomeBusca = categoriasBuscadas.get(0).getNome();
-		Categoria categoriaBuscaNome = categoriaDAO.buscarPorNome(nomeBusca).get(0);
+		Categoria categoriaBuscaNome = categoriaDAO.buscarComFiltro(nomeBusca).get(0);
 		LOGGER.info("ID da categoria com nome {}: {}", nomeBusca, categoriaBuscaNome.getId());
 	}
 

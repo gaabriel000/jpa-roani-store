@@ -8,6 +8,11 @@ public class JPAUtil
 {
 	private static final EntityManagerFactory FACTORY = Persistence.createEntityManagerFactory("loja");
 	
+	private JPAUtil()
+	{
+		throw new IllegalStateException("Classe utilitária");
+	}
+	
 	public static EntityManager getEntityManager()
 	{
 		return FACTORY.createEntityManager();

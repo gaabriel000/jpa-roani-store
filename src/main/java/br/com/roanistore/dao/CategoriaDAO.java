@@ -7,6 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,18 +41,17 @@ public class CategoriaDAO extends GenericoDAO
 		return new ArrayList<>();
 	}
 	
-	public List<Categoria> buscarPorNome(String nome)
+	public List<Categoria> buscarComFiltro(String nome)
 	{
-		if(isNotBlank(nome))
-		{
-			LOGGER.info("Buscando categoria pelo nome {}", nome);
-			String query = "SELECT c FROM Categoria c WHERE c.nome = :nome";
-			return em.createQuery(query, Categoria.class)
-					.setParameter("nome", nome)
-					.getResultList();
-		}
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<Categoria> query = builder.createQuery(Categoria.class);
+		Root<Categoria> from = query.from(Categoria.class);
+		Predicate filtros = builder.and();
 		
-		LOGGER.warn("Nome está nulo ou em branco");
-		return new ArrayList<>();
+		if (isNotBlank(nome))
+			builder.and(filtros, builder.equal(from.get("nome"), nome));
+		
+		query.where(filtros);
+		return em.createQuery(query).getResultList();
 	}
 }
